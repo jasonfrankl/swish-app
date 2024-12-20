@@ -1,0 +1,10 @@
+/* Import Leaflet CSS */
+@import "leaflet/dist/leaflet.css";
+
+/* Set the height and width of the map container */
+#map {
+    height: 100vh;
+    width: 100%;
+}
+
+/* Optionally, you can customize the map container further */

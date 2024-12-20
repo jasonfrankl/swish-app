@@ -1,0 +1,12 @@
+# Ignore everything in node_modules
+node_modules/
+
+# Ignore Angular cache
+.angular/
+
+# Ignore build outputs
+dist/
+
+# Don't ignore proxy files
+!proxy/default.conf.template
+

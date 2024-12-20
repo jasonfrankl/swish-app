@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  frontend:
+    build:
+      context: . # Project root
+      dockerfile: frontend/Dockerfile
+    container_name: frontend
+    ports:
+      - "4200:4200"
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: backend
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
