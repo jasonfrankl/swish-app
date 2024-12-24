@@ -36,3 +36,128 @@ button {
 .login-container {
     margin-right: 20px;
 }
+
+
+/* From Uiverse.io by Yaya12085 */
+.radio-inputs {
+    position: relative;
+    display: flex;
+    flex-wrap: wrap;
+    border-radius: 0.5rem;
+    background-color: #EEE;
+    box-sizing: border-box;
+    box-shadow: 0 0 0px 1px rgba(0, 0, 0, 0.06);
+    padding: 0.25rem;
+    width: 300px;
+    font-size: 14px;
+}
+
+.radio-inputs .radio {
+    flex: 1 1 auto;
+    text-align: center;
+}
+
+.radio-inputs .radio input {
+    display: none;
+}
+
+.radio-inputs .radio .name {
+    display: flex;
+    cursor: pointer;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.5rem;
+    border: none;
+    padding: .5rem 0;
+    color: rgba(51, 65, 85, 1);
+    transition: all .15s ease-in-out;
+}
+
+.radio-inputs .radio input:checked+.name {
+    background-color: #fff;
+    font-weight: 600;
+}
+
+/* Adjust the container to align cards to the left */
+.game-cards-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 20px;
+    /* Space between cards */
+    margin-left: 10px;
+    /* Push cards slightly to the left */
+}
+
+/* Make the card wider and adjust height */
+.card {
+    width: 600px;
+    /* Increase width for horizontal layout */
+    height: 130px;
+    /* Adjust height to fit content */
+    background-color: #24233b;
+    border-radius: 8px;
+    box-shadow: 0px 10px 10px rgb(73, 70, 92);
+    transition: 0.3s;
+    display: flex;
+    flex-direction: column;
+    /* Stack .top and .content vertically */
+    justify-content: flex-start;
+    padding: 20px;
+    overflow: hidden;
+    /* Ensure content fits inside */
+}
+
+/* Hover effect */
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0px 10px 10px black;
+}
+
+/* Flex layout for top section to avoid text cut-off */
+.card .top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    white-space: nowrap;
+    /* Prevent text from wrapping */
+    padding-bottom: 10px;
+    /* Space below .top section */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    /* Divider line */
+}
+
+/* Center the content below the divider */
+.card .content {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    justify-content: center;
+    width: 100%;
+    color: white;
+    padding-top: 15px;
+    /* Space above content */
+}
+
+/* Handle the home vs away team section */
+.card h3 {
+    margin: 0;
+    font-size: 1.4em;
+    color: white;
+}
+
+.card span {
+    font-size: 1.2em;
+    color: white;
+}
+
+/* Score styling */
+.card p {
+    margin: 5px 0;
+    font-size: 1.1em;
+}
+
+h1 {
+    margin-left: 15px;
+}

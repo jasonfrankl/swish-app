@@ -6,18 +6,46 @@
         <button [routerLink]="['/login']">Login</button>
     </div>
 </div>
+<div class="radio-inputs">
+    <label class="radio">
+        <input type="radio" name="radio" value="'college-basketball'" (change)="onSportChange('college-basketball')"
+            [checked]="selectedSport === 'college-basketball'">
+        <span class="name">NCAAM</span>
+    </label>
+    <label class="radio">
+        <input type="radio" name="radio" value="'college-basketball-women'"
+            (change)="onSportChange('college-basketball-women')"
+            [checked]="selectedSport === 'college-basketball-women'">
+        <span class="name">NCAAW</span>
+    </label>
 
-<div class="games=container">
-    <h1> Currently Playing </h1>
-    <div *ngIf="activeGames.length > 0; else noGames">
-        <ul>
-            <li *ngFor="let game of activeGames">
-                {{ game.homeTeam }} vs. {{game.awayTeam }} - {{ game.currentPeriod}}
-                {{ game.score.home}} : {{game.score.away}}
-            </li>
-        </ul>
-    </div>
-    <ng-template #noGames>
-        <p>No games currently in progress.</p>
-    </ng-template>
+    <label class="radio">
+        <input type="radio" name="radio" value="'college-football'" (change)="onSportChange('college-football')"
+            [checked]="selectedSport === 'college-football'">
+        <span class="name">CFB</span>
+    </label>
 </div>
+<div *ngIf="loading">
+    <app-loading></app-loading>
+</div>
+<h1> Currently Playing </h1>
+<div class="game-cards-container" *ngIf="activeGames.length > 0; else noGames">
+    <div *ngFor="let game of activeGames" class="card">
+        <div class="top">
+            <h3>{{ game.homeTeam }}</h3>
+            <span>vs.</span>
+            <h3>{{ game.awayTeam }}</h3>
+        </div>
+        <div class="content">
+            <p>Current Period: <strong>{{ game.currentPeriod }}</strong></p>
+            <p>Score:</p>
+            <p>{{ game.score.home }} - {{ game.score.away }}</p>
+        </div>
+    </div>
+</div>
+
+
+
+<ng-template #noGames>
+    <p>No Games currently in Progress</p>
+</ng-template>
