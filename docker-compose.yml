@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   frontend:
     build:
@@ -18,3 +16,14 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+
+  database:
+    image: mariadb:10.6
+    restart: unless-stopped
+    ports:
+      - 3307:3306
+    volumes:
+      - "./database/data:/var/lib/mysql"
+      - "./database/db_schema/schema.sql:/docker-entrypoint-initdb.d/schema.sql"
+    env_file:
+      - .env
