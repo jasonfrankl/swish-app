@@ -1,4 +1,51 @@
-<div>
-    <h1>Welcome to the Home Component</h1>
-    <p>This is the main content of the home screen TESTING testing .</p>
+<div class="header-container">
+    <div class="header">
+        <p>Box Score Notification App</p>
+    </div>
+    <div class="login-container">
+        <button [routerLink]="['/login']">Login</button>
+    </div>
 </div>
+<div class="radio-inputs">
+    <label class="radio">
+        <input type="radio" name="radio" value="'college-basketball'" (change)="onSportChange('college-basketball')"
+            [checked]="selectedSport === 'college-basketball'">
+        <span class="name">NCAAM</span>
+    </label>
+    <label class="radio">
+        <input type="radio" name="radio" value="'college-basketball-women'"
+            (change)="onSportChange('college-basketball-women')"
+            [checked]="selectedSport === 'college-basketball-women'">
+        <span class="name">NCAAW</span>
+    </label>
+
+    <label class="radio">
+        <input type="radio" name="radio" value="'college-football'" (change)="onSportChange('college-football')"
+            [checked]="selectedSport === 'college-football'">
+        <span class="name">CFB</span>
+    </label>
+</div>
+<div *ngIf="loading">
+    <app-loading></app-loading>
+</div>
+<h1> Currently Playing </h1>
+<div class="game-cards-container" *ngIf="activeGames.length > 0; else noGames">
+    <div *ngFor="let game of activeGames" class="card">
+        <div class="top">
+            <h3>{{ game.homeTeam }}</h3>
+            <span>vs.</span>
+            <h3>{{ game.awayTeam }}</h3>
+        </div>
+        <div class="content">
+            <p>Current Period: <strong>{{ game.currentPeriod }} - {{game.gameClock}}</strong></p>
+            <p>Score:</p>
+            <p>{{ game.score.home }} - {{ game.score.away }}</p>
+        </div>
+    </div>
+</div>
+
+
+
+<ng-template #noGames>
+    <p>No Games currently in Progress</p>
+</ng-template>
