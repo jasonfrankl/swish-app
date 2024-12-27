@@ -14,10 +14,7 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
--- Disable foreign key checks to avoid constraint errors
 SET FOREIGN_KEY_CHECKS = 0;
-
--- Drop tables if they exist (order matters for dependencies)
 DROP TABLE IF EXISTS board_users;
 DROP TABLE IF EXISTS notification;
 DROP TABLE IF EXISTS task;
@@ -26,7 +23,6 @@ DROP TABLE IF EXISTS board;
 DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS games;
 
--- Re-enable foreign key checks after table drops
 SET FOREIGN_KEY_CHECKS = 1;
 
 

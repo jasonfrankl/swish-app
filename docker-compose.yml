@@ -7,6 +7,9 @@ services:
     ports:
       - "4200:4200"
     restart: unless-stopped
+    volumes:
+      - ./frontend:/frontend
+      - /frontend/node_modules
 
   backend:
     build:
@@ -16,6 +19,9 @@ services:
     ports:
       - "3000:3000"
     restart: unless-stopped
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     env_file:
       - .env
 

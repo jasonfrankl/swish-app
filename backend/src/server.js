@@ -9,15 +9,12 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// Basic Route
 app.get('/', (req, res) => {
     res.send('App is running.');
 });
 
-// Use API Router
 app.use(apiRouter);
 
-// Start the Server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

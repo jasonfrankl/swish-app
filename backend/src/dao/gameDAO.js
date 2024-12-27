@@ -1,4 +1,4 @@
-const db = require('./DBConnection'); // Assuming you have a db connection module
+const db = require('./DBConnection');
 const moment = require('moment');
 
 class GameDAO {
@@ -8,16 +8,14 @@ class GameDAO {
             for (const game of activeGames) {
                 const { homeTeam, awayTeam, gameClock, score, currentPeriod } = game;
 
-                // Query to check if the game already exists in the database
                 const [existingGame] = await db.query(
                     'SELECT * FROM games WHERE home_team = ? AND away_team = ? AND sport_type = ?',
                     [homeTeam, awayTeam, sportType]
                 );
 
-                // If the game doesn't exist, insert it
                 if (!existingGame) {
                     await db.query(
-                        'INSERT INTO games (sport_type, home_team, away_team, game_date, game_clock, home_score, away_score) VALUES (?, ?, ?, ?, ?, ?, ? )',
+                        'INSERT INTO games (sport_type, home_team, away_team, game_date, game_period, game_clock, home_score, away_score) VALUES (?, ?, ?, ?, ?, ?, ?, ? )',
                         [
                             sportType,
                             homeTeam,
