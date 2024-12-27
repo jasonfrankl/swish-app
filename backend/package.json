@@ -4,7 +4,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js",
+    "start": "nodemon -L  ./src/server.js",
     "dev": "nodemon server.js"
   },
   "keywords": [],
@@ -14,7 +14,9 @@
   "dependencies": {
     "body-parser": "^1.20.3",
     "cors": "^2.8.5",
-    "express": "^4.21.1"
+    "express": "^4.21.1",
+    "mariadb": "^3.4.0",
+    "moment": "^2.30.1"
   },
   "devDependencies": {
     "nodemon": "^3.1.7"

@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const apiRouter = require('./APIRouter');
+const apiRouter = require('./api/APIRouter');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
