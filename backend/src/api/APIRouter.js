@@ -49,7 +49,7 @@ router.get('/api/college-basketball/active-games', async (req, res) => {
 
 
 router.get('/api/college-basketball-women/active-games', async (req, res) => {
-    handleGameFetch('https://ncaa-api.henrygd.me/scoreboard/basketball-women/d1', 'college_basketball_women', res);
+    handleGameFetch('https://ncaa-api.henrygd.me/scoreboard/basketball-women/d1', 'womens_college_basketball', res);
 });
 
 router.get('/api/college-football/active-games', async (req, res) => {
