@@ -56,7 +56,9 @@ router.get('/api/college-football/active-games', async (req, res) => {
     handleGameFetch('https://ncaa-api.henrygd.me/scoreboard/football/fbs', 'college_football', res);
 });
 
-
+router.get('/api/health', (req, res) => {
+    res.status(200).send("Backend in order");
+});
 module.exports = router;
 
 

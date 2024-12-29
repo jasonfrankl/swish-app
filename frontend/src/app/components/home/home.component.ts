@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 import { LoadingComponent } from '../loading/loading.component';
+
 @Component({
   selector: 'app-home',
   standalone: true,
@@ -14,6 +15,8 @@ import { LoadingComponent } from '../loading/loading.component';
 export class HomeComponent implements OnInit {
   activeGames: any[] = [];
   loading: boolean = false;
+  loadingApp: boolean = false;
+
   selectedSport = 'college-basketball';
   constructor(private http: HttpClient) { }
 
@@ -23,16 +26,21 @@ export class HomeComponent implements OnInit {
 
   fetchActiveGames() {
     this.loading = true;
+    this.loadingApp = true;
     const apiUrl = this.getApiUrl(this.selectedSport);
     this.http.get<any>(apiUrl)
       .subscribe({
         next: (response) => {
           this.activeGames = response.activeGames || [];
           this.loading = false;
+          this.loadingApp = false;
+
         },
         error: (error) => {
           console.error('Error fetching active games:', error);
           this.loading = false;
+          this.loadingApp = true;
+
         }
       });
   }
