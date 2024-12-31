@@ -4,6 +4,7 @@
     "@types/leaflet": "^1.9.14"
   },
   "dependencies": {
-    "dotenv": "^16.4.7"
+    "dotenv": "^16.4.7",
+    "socket-io": "^1.0.0"
   }
 }

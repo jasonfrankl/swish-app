@@ -4,6 +4,7 @@ import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 import { LoadingComponent } from '../loading/loading.component';
+import { io, Socket } from 'socket.io-client';
 
 @Component({
   selector: 'app-home',
@@ -16,13 +17,27 @@ export class HomeComponent implements OnInit {
   activeGames: any[] = [];
   loading: boolean = false;
   loadingApp: boolean = false;
+  private socket!: Socket;
+
 
   selectedSport = 'college-basketball';
   constructor(private http: HttpClient) { }
 
   ngOnInit() {
     this.fetchActiveGames();
+
+    // Prevent WebSocket initialization during SSR
+    if (typeof window !== 'undefined') {
+      this.socket = io('http://localhost:3000');
+
+      // Listen for live score updates
+      this.socket.on('scoreUpdate', (games) => {
+        console.log('Live score updates:', games);
+        this.activeGames = games;
+      });
+    }
   }
+
 
   fetchActiveGames() {
     this.loading = true;
@@ -46,18 +61,24 @@ export class HomeComponent implements OnInit {
   }
 
   getApiUrl(sport: string): string {
+    // Detect if running in SSR (server) or CSR (browser)
+    const isServer = typeof window === 'undefined';
+    const apiBaseUrl = isServer
+      ? 'http://localhost:3000'  // Use absolute URL during SSR
+      : '';                      // Use relative URL for client-side rendering (CSR)
+
     switch (sport) {
       case "college-basketball":
-        return 'http://localhost:3000/api/college-basketball/active-games';
+        return `${apiBaseUrl}/api/college-basketball/active-games`;
       case "college-basketball-women":
-        return 'http://localhost:3000/api/college-basketball-women/active-games';
+        return `${apiBaseUrl}/api/college-basketball-women/active-games`;
       case "college-football":
-        return 'http://localhost:3000/api/college-football/active-games'
+        return `${apiBaseUrl}/api/college-football/active-games`;
       default:
-        return 'http://localhost:3000/api/college-basketball/active-games'
-
+        return `${apiBaseUrl}/api/college-basketball/active-games`;
     }
   }
+
 
   onSportChange(sport: string) {
     this.selectedSport = sport;

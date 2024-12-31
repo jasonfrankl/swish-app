@@ -51,7 +51,7 @@
 
 
 # Stage 1: Build Angular App
-FROM node:18 AS build
+FROM node:20 AS build
 
 WORKDIR /frontend
 
@@ -62,14 +62,18 @@ RUN npm run build -- --configuration production
 RUN ls -la /frontend/dist/forage-for-cool-bees-frontend/browser
 
 # Stage 2: Serve with Node (Production Environment)
-FROM node:18
+FROM node:20
 
 WORKDIR /frontend  
 
 # Copy the browser output to the same frontend path
 COPY --from=build /frontend/dist/forage-for-cool-bees-frontend/browser /frontend/dist/forage-for-cool-bees-frontend/browser
+COPY backend /backend 
+
 COPY frontend/server.js .  
 RUN npm install express
+RUN npm install http-proxy-middleware
+
 
 EXPOSE 4200
 CMD ["node", "server.js"]
