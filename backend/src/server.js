@@ -1,60 +1,56 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
+const expressWs = require('express-ws');
 const apiRouter = require('./api/APIRouter');
-const { Server } = require('socket.io');
-const http = require('http');  // Add http for WebSockets
 
 const app = express();
+expressWs(app);  // Initialize express-ws for WebSocket support
+
 const PORT = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
-app.use(apiRouter);  // Mount the API routes to handle /api calls
+app.use(apiRouter);
+// WebSocket Route
+app.ws('/ws', (ws, req) => {
+    console.log('WebSocket client connected.');
 
+    setInterval(() => {
+        const liveScores = [
+            {
+                homeTeam: 'Team C',
+                awayTeam: 'Team D',
+                home: { score: Math.floor(Math.random() * 100) },
+                away: { score: Math.floor(Math.random() * 100) },
+                currentPeriod: 'Q3'
+            }
+        ];
+        ws.send(JSON.stringify({ label: 'chat', data: liveScores }));
+    }, 5000);
 
-// Only start WebSocket when the container is running (not during Docker build)
-if (process.env.WEBSOCKET_ENABLED === 'true') {
-    const server = http.createServer(app);
-    const io = new Server(server, {
-        cors: {
-            origin: '*'
-        }
+    ws.on('message', (msg) => {
+        console.log(`Message received from client: ${msg}`);
     });
 
-    io.on('connection', (socket) => {
-        console.log('Client connected:', socket.id);
-        setInterval(async () => {
-            const liveScores = await fetchLiveScores();
-            socket.emit('scoreUpdate', liveScores);
-        }, 10000);
-
-        socket.on('disconnect', () => {
-            console.log('Client disconnected:', socket.id);
-        });
+    ws.on('close', () => {
+        console.log('WebSocket client disconnected.');
     });
+});
 
-    server.listen(PORT, () => {
-        console.log(`WebSocket server running at http://localhost:${PORT}`);
-        console.log('WebSocket is initialized and listening for connections...');
 
-    });
-} else {
-    app.listen(PORT, () => {
-        console.log(`Backend server running at http://localhost:${PORT}`);
-    });
-}
+// Basic API route for testing
+app.get('/', (req, res) => {
+    res.send('Backend is running');
+});
 
-// Mock function to simulate fetching live scores
-async function fetchLiveScores() {
-    const response = await fetch('https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1');
-    const data = await response.json();
-    return data.games.map(game => ({
-        homeTeam: game.game.home.names.short,
-        awayTeam: game.game.away.names.short,
-        homeScore: game.game.home.score,
-        awayScore: game.game.away.score,
-        currentPeriod: game.game.currentPeriod
-    }));
-}
+// Start the server
+app.listen(PORT, () => {
+    console.log(`Backend server running at http://localhost:${PORT}`);
+    console.log('WebSocket route active at ws://localhost:3000/ws');
+});
+
+
+
+// const apiRouter = require('./api/APIRouter');

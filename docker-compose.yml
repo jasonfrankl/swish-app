@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   frontend:
     build:
@@ -12,8 +14,6 @@ services:
       - /frontend/node_modules
     depends_on:
       - backend
-    networks:
-      - app-network
 
   backend:
     build:
@@ -30,8 +30,6 @@ services:
       - .env
     environment:
       - WEBSOCKET_ENABLED=true
-    networks:
-      - app-network
 
   database:
     image: mariadb:10.6
@@ -43,9 +41,3 @@ services:
       - "./database/db_schema/schema.sql:/docker-entrypoint-initdb.d/schema.sql"
     env_file:
       - .env
-    networks:
-      - app-network
-
-networks:
-  app-network:
-    driver: bridge
