@@ -37,6 +37,8 @@ if (process.env.WEBSOCKET_ENABLED === 'true') {
 
     server.listen(PORT, () => {
         console.log(`WebSocket server running at http://localhost:${PORT}`);
+        console.log('WebSocket is initialized and listening for connections...');
+
     });
 } else {
     app.listen(PORT, () => {
@@ -46,7 +48,13 @@ if (process.env.WEBSOCKET_ENABLED === 'true') {
 
 // Mock function to simulate fetching live scores
 async function fetchLiveScores() {
-    return [
-        { homeTeam: 'Team A', awayTeam: 'Team B', homeScore: 75, awayScore: 65 }
-    ];
+    const response = await fetch('https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1');
+    const data = await response.json();
+    return data.games.map(game => ({
+        homeTeam: game.game.home.names.short,
+        awayTeam: game.game.away.names.short,
+        homeScore: game.game.home.score,
+        awayScore: game.game.away.score,
+        currentPeriod: game.game.currentPeriod
+    }));
 }

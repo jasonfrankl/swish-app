@@ -28,12 +28,16 @@ export class HomeComponent implements OnInit {
 
     // Prevent WebSocket initialization during SSR
     if (typeof window !== 'undefined') {
-      this.socket = io('http://localhost:3000');
+      this.socket = io('http://backend:3000');
 
       // Listen for live score updates
       this.socket.on('scoreUpdate', (games) => {
         console.log('Live score updates:', games);
         this.activeGames = games;
+      });
+
+      this.socket.on('connect_error', (error) => {
+        console.error('WebSocket connection failed:', error);
       });
     }
   }
