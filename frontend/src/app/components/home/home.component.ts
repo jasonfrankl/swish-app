@@ -75,7 +75,10 @@ export class HomeComponent implements OnInit, OnDestroy {
   connectWebSocket() {
     const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
     // const wsUrl = `${scheme}://localhost:3000/ws`;  // Direct connection to localhost
-    const wsUrl = `${scheme}://host.docker.internal:3000/ws`;  // Use Docker internal host for WebSocket
+    const backendHost = window.location.hostname === 'localhost'
+      ? 'localhost'
+      : 'host.docker.internal';
+    const wsUrl = `${scheme}://${backendHost}:3000/ws`;
 
     this.socket = new WebSocket(wsUrl);
 

@@ -3,21 +3,6 @@ const GameDAO = require('../dao/gameDAO');
 const router = express.Router();
 const { createProxyMiddleware } = require('http-proxy-middleware');
 
-// Proxy middleware for external API calls
-// router.use('/api', createProxyMiddleware({
-//     target: 'https://ncaa-api.henrygd.me',  // Target external API
-//     changeOrigin: true,
-//     pathRewrite: {
-//         '^/api/college-basketball/active-games': '/scoreboard/basketball-men/d1',
-//         '^/api/college-basketball-women/active-games': '/scoreboard/basketball-women/d1',
-//         '^/api/college-football/active-games': '/scoreboard/football/fbs'
-//     },
-//     onProxyReq: (proxyReq, req) => {
-//         console.log(`Proxying request to: ${proxyReq.path}`);
-//     }
-// }));
-
-
 
 const handleGameFetch = async (url, sportType, res) => {
     try {
