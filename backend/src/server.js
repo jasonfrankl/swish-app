@@ -3,6 +3,7 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const expressWs = require('express-ws');
 const apiRouter = require('./api/APIRouter');
+const { handleWebSocketConnection } = require('./ws/WebSocketHandler');
 
 const app = express();
 expressWs(app);  // Initialize express-ws for WebSocket support
@@ -15,28 +16,7 @@ app.use(bodyParser.json());
 app.use(apiRouter);
 // WebSocket Route
 app.ws('/ws', (ws, req) => {
-    console.log('WebSocket client connected.');
-
-    setInterval(() => {
-        const liveScores = [
-            {
-                homeTeam: 'Team C',
-                awayTeam: 'Team D',
-                home: { score: Math.floor(Math.random() * 100) },
-                away: { score: Math.floor(Math.random() * 100) },
-                currentPeriod: 'Q3'
-            }
-        ];
-        ws.send(JSON.stringify({ label: 'chat', data: liveScores }));
-    }, 5000);
-
-    ws.on('message', (msg) => {
-        console.log(`Message received from client: ${msg}`);
-    });
-
-    ws.on('close', () => {
-        console.log('WebSocket client disconnected.');
-    });
+    handleWebSocketConnection(ws);
 });
 
 
