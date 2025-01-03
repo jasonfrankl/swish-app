@@ -6,7 +6,7 @@ let clients = new Set();
 function handleWebSocketConnection(ws) {
     console.log('NICE a websocket client has been connected');
     clients.add(ws);
-    // Fetch live scores every 30 seconds and broadcast
+    // Fetch live scores every 30 seconds and broadcasts
     const intervalId = setInterval(async () => {
         try {
             const liveScores = await GameService.handleGameFetch(
