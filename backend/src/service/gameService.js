@@ -1,5 +1,5 @@
 const GameDAO = require('../dao/gameDAO');
-const API_URL = 'https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1';
+// const API_URL = 'https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1';
 
 
 async function handleGameFetch(url, sportType) {
@@ -45,5 +45,4 @@ async function handleGameFetch(url, sportType) {
 
 module.exports = {
     handleGameFetch
-
 };

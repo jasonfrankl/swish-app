@@ -19,26 +19,49 @@ router.get('/api/health', (req, res) => {
     res.status(200).send("Backend in order");
 });
 
-router.get('/api/college-basketball/active-games', async (req, res) => {
+router.get('/api/:sport/active-games', async (req, res) => {
+    const sportType = req.params.sport;
+    const apiUrl = getApiUrl(sportType);
     try {
-        const liveScores = await GameService.handleGameFetch(
-            'https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1',
-            'college_basketball'
-        );
+        const liveScores = await GameService.handleGameFetch(apiUrl, sportType);
         res.json({ activeGames: liveScores });
     } catch (error) {
         console.error('Error fetching games:', error.message);
-        res.status(500).send('Error fetching game data');
+        res.status(500).send('ERROR fetching game data');
     }
 });
 
-router.get('/api/college-basketball-women/active-games', async (req, res) => {
-    handleGameFetch('https://ncaa-api.henrygd.me/scoreboard/basketball-women/d1', 'womens_college_basketball', res);
-});
 
-router.get('/api/college-football/active-games', async (req, res) => {
-    handleGameFetch('https://ncaa-api.henrygd.me/scoreboard/football/fbs', 'college_football', res);
-});
+function getApiUrl(sportType) {
+    const apiPaths = {
+        'college_basketball': 'basketball-men/d1',
+        'womens_college_basketball': 'basketball-women/d1',
+        'college_football': 'football/fbs'
+    };
+    const baseUrl = 'https://ncaa-api.henrygd.me/scoreboard';
+    return `${baseUrl}/${apiPaths[sportType] || apiPaths["college_basketball"]}`;
+}
+
+// router.get('/api/college-basketball/active-games', async (req, res) => {
+//     try {
+//         const liveScores = await GameService.handleGameFetch(
+//             'https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1',
+//             'college_basketball'
+//         );
+//         res.json({ activeGames: liveScores });
+//     } catch (error) {
+//         console.error('Error fetching games:', error.message);
+//         res.status(500).send('Error fetching game data');
+//     }
+// });
+
+// router.get('/api/college-basketball-women/active-games', async (req, res) => {
+//     handleGameFetch('https://ncaa-api.henrygd.me/scoreboard/basketball-women/d1', 'womens_college_basketball', res);
+// });
+
+// router.get('/api/college-football/active-games', async (req, res) => {
+//     handleGameFetch('https://ncaa-api.henrygd.me/scoreboard/football/fbs', 'college_football', res);
+// });
 module.exports = router;
 
 

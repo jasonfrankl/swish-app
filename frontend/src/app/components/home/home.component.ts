@@ -84,6 +84,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.socket.onopen = () => {
       console.log('WebSocket connected.');
+      this.socket.send(JSON.stringify({ type: 'sportChange', sportType: this.selectedSport }))
     };
 
     this.socket.onmessage = (event) => {
@@ -91,20 +92,34 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (packet.label === 'init') {
         this.activeGames = packet.data;
       } else if (packet.label === 'chat') {
-        console.log('Live update:', packet.data);
+        console.log('Live update is this updating:', packet.data);
 
-        const game = packet.data;
+        // Handle array or single object updates
+        const incomingGames = Array.isArray(packet.data) ? packet.data : [packet.data];
+        console.log('INCOMING GAMES: ', incomingGames);
+        incomingGames.forEach((newGame: any) => {
+          const existingGameIndex = this.activeGames.findIndex(
+            (g) => g.homeTeam === newGame.homeTeam && g.awayTeam === newGame.awayTeam
+          );
+          console.log(newGame);
+          const formattedGame = {
+            homeTeam: newGame.homeTeam || 'Unknown Team',
+            awayTeam: newGame.awayTeam || 'Unknown Team',
+            homeScore: (newGame.score?.home !== undefined) ? newGame.score.home : 0,
+            awayScore: (newGame.score?.away !== undefined) ? newGame.score.away : 0,
+            currentPeriod: newGame.currentPeriod || 'N/A',
+            gameClock: newGame.gameClock || '00:00'
+          };
 
-        // Ensure the structure is valid and handle missing fields
-        const formattedGame = {
-          homeTeam: game.homeTeam || 'Unknown Team',
-          awayTeam: game.awayTeam || 'Unknown Team',
-          homeScore: game.home?.score ?? 0,  // Use optional chaining and default to 0
-          awayScore: game.away?.score ?? 0,  // Use optional chaining and default to 0
-          currentPeriod: game.currentPeriod || 'N/A'
-        };
 
-        this.activeGames.push(formattedGame);
+          if (existingGameIndex !== -1) {
+            // Update the existing game
+            this.activeGames[existingGameIndex] = { ...this.activeGames[existingGameIndex], ...formattedGame };
+          } else {
+            // Add the game if not already present
+            this.activeGames.push(formattedGame);
+          }
+        });
       }
     };
 
@@ -123,5 +138,14 @@ export class HomeComponent implements OnInit, OnDestroy {
   onSportChange(sport: string) {
     this.selectedSport = sport;
     this.fetchActiveGames();
+
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      const message = JSON.stringify({ type: 'sportChange', sportType: sport });
+      console.log(`Sending sportCHange to websocket: ${message}`)
+      this.socket.send(message);
+    } else {
+      console.warn('websocket not open, reconnecting ... ');
+      this.connectWebSocket();
+    }
   }
 }
