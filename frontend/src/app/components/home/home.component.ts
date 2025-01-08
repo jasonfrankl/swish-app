@@ -138,9 +138,18 @@ export class HomeComponent implements OnInit, OnDestroy {
   onSportChange(sport: string) {
     this.selectedSport = sport;
     this.fetchActiveGames();
+    console.log('This is the sport being passed into SPORTCHANGE: ', sport);
+    const sportTypeMap: { [key: string]: string } = {
+      'college-basketball': 'college_basketball',
+      'college-basketball-women': 'womens_college_basketball',
+      'college-football': 'college_football'
+    };
+
+    console.log('This is what the sport is being mapped to: ', sportTypeMap[sport]);
+    const dbSportType = sportTypeMap[sport] || 'college_basketball';
 
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      const message = JSON.stringify({ type: 'sportChange', sportType: sport });
+      const message = JSON.stringify({ type: 'sportChange', sportType: dbSportType });
       console.log(`Sending sportCHange to websocket: ${message}`)
       this.socket.send(message);
     } else {

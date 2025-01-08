@@ -2,6 +2,7 @@ const GameService = require('../service/gameService');
 const handleGameFetch = require('../api/APIRouter').handleGameFetch;
 
 let clients = new Map();
+let intervals = new Map();
 
 function handleWebSocketConnection(ws, sportType = 'college_basketball') {
     console.log(`NICE  a websocket client has been connected for ${sportType}`);
@@ -12,41 +13,61 @@ function handleWebSocketConnection(ws, sportType = 'college_basketball') {
         const message = JSON.parse(msg);
         console.log('Message recieved from client: ', message);
         if (message.type === 'sportChange') {
-            clients.set(ws, message.sportType);
-            console.log(`Client switched to ${message.sportType}`);
+            const newSportType = message.sportType;
+            clients.set(ws, newSportType);
+            console.log(`Client switched to ${newSportType}`);
+
+            if (intervals.has(ws)) {
+                clearInterval(intervals.get(ws));
+            }
+            startFetchingScores(ws, newSportType);
         }
     });
-
-    // Fetch live scores every 30 seconds and broadcasts
-    const intervalId = setInterval(async () => {
-        try {
-            const liveScores = await GameService.handleGameFetch(
-                `https://ncaa-api.henrygd.me/scoreboard/${getApiPath(sportType)}`, sportType
-            );
-            broadcastLiveScore(liveScores, sportType);  // Make sure this matches the function name
-        } catch (error) {
-            console.error('WebSocket fetch error:', error.message);
-        }
-    }, 30000);
 
     ws.on('close', () => {
         console.log('Whoops client disconnected');
         clients.delete(ws);
-        clearInterval(intervalId);
+        clearInterval(intervals.get(ws));
+        intervals.delete(ws);
     });
 }
 
-function broadcastLiveScore(liveScores, sportType) {
+function startFetchingScores(ws, sportType) {
+    fetchAndBroadcast(ws, sportType);
+    const intervalId = setInterval(() => {
+        fetchAndBroadcast(ws, sportType);
+    }, 30000);
+    intervals.set(ws, intervalId);
+}
 
+async function fetchAndBroadcast(ws, sportType) {
+    console.log(`fetching scores for ${sportType}`);
+    try {
+        const liveScores = await GameService.handleGameFetch(
+            `https://ncaa-api.henrygd.me/scoreboard/${getApiPath(sportType)}`, sportType
+        );
+        console.log(`fetched scores for ${sportType}:`, liveScores);
+        broadcastLiveScore(liveScores, sportType);
+    } catch (error) {
+        console.error('Websocket fetch error with fetchANdBroadcast', error.message);
+    }
+}
+
+function broadcastLiveScore(liveScores, sportType) {
+    console.log('This is the backend BROADCAST sportType that is being passed in: ', sportType);
     const sportTypeMap = {
         'college-basketball': 'college_basketball',
-        'womens-college-basketball': 'womens_college_basketball',
-        'college-football': 'college_football'
+        'college_basketball': 'college_basketball',  // Backend consistent naming
+        'womens_college_basketball': 'womens_college_basketball',
+        'college_football': 'college_football'
     };
     const dbSportType = sportTypeMap[sportType] || 'college_basketball';
-
+    console.log('This is what dbSportTYPE Should be: ', sportTypeMap[sportType]);
     clients.forEach((clientSportType, client) => {
+        console.log('This is the client sport type: ', clientSportType);
+        console.log('This is the dbSportType: ', dbSportType);
         if (client.readyState === 1 && clientSportType == dbSportType) {
+            console.log(`Broadcasting live scores for ${sportType}`);
             client.send(JSON.stringify({ label: 'chat', data: liveScores }));
         }
     });
