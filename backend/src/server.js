@@ -10,7 +10,6 @@ expressWs(app);  // Initialize express-ws for WebSocket support
 
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(apiRouter);
@@ -31,6 +30,3 @@ app.listen(PORT, () => {
     console.log('WebSocket route active at ws://localhost:3000/ws');
 });
 
-
-
-// const apiRouter = require('./api/APIRouter');

@@ -1,5 +1,4 @@
 const GameDAO = require('../dao/gameDAO');
-// const API_URL = 'https://ncaa-api.henrygd.me/scoreboard/basketball-men/d1';
 
 
 async function handleGameFetch(url, sportType) {
@@ -38,7 +37,7 @@ async function handleGameFetch(url, sportType) {
         return activeGames;
     } catch (error) {
         console.error('Error fetching games:', error);
-        throw error;  // Propagate error to WebSocket or API layer
+        throw error;
     }
 };
 
