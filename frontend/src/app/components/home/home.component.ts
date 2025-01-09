@@ -56,7 +56,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   }
 
   getApiUrl(sport: string): string {
-    const apiBaseUrl = 'http://localhost:3000';  // Directly use localhost
+    const apiBaseUrl = 'http://localhost:3000';
 
 
     switch (sport) {
@@ -76,7 +76,6 @@ export class HomeComponent implements OnInit, OnDestroy {
   // WebSocket Connection Logic
   connectWebSocket() {
     const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    // const wsUrl = `${scheme}://localhost:3000/ws`;  // Direct connection to localhost
     const backendHost = window.location.hostname === 'localhost'
       ? 'localhost'
       : 'host.docker.internal';
@@ -105,7 +104,6 @@ export class HomeComponent implements OnInit, OnDestroy {
       } else if (packet.label === 'chat') {
         console.log('Live update IS ID is this updating:', packet.data);
 
-        // Handle array or single object updates
         const incomingGames = Array.isArray(packet.data) ? packet.data : [packet.data];
         console.log('INCOMING GAMES: ', incomingGames);
         incomingGames.forEach((newGame: any) => {
