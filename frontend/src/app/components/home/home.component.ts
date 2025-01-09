@@ -62,6 +62,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     switch (sport) {
       case "college-basketball":
         return `${apiBaseUrl}/api/college-basketball/active-games`;
+      case "college_basketball":
+        return `${apiBaseUrl}/api/college-basketball/active-games`;
       case "college-basketball-women":
         return `${apiBaseUrl}/api/college-basketball-women/active-games`;
       case "college-football":
@@ -84,7 +86,16 @@ export class HomeComponent implements OnInit, OnDestroy {
 
     this.socket.onopen = () => {
       console.log('WebSocket connected.');
-      this.socket.send(JSON.stringify({ type: 'sportChange', sportType: this.selectedSport }))
+      // Normalize the sport type before sending
+      const sportTypeMap: { [key: string]: string } = {
+        'college-basketball': 'college_basketball',
+        'college-basketball-women': 'womens_college_basketball',
+        'college-football': 'college_football'
+      };
+      const dbSportType = sportTypeMap[this.selectedSport] || 'college_basketball';
+      console.log('Sending initial sport type to WebSocket:', dbSportType);
+
+      this.socket.send(JSON.stringify({ type: 'sportChange', sportType: dbSportType }));
     };
 
     this.socket.onmessage = (event) => {
@@ -92,7 +103,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       if (packet.label === 'init') {
         this.activeGames = packet.data;
       } else if (packet.label === 'chat') {
-        console.log('Live update is this updating:', packet.data);
+        console.log('Live update IS ID is this updating:', packet.data);
 
         // Handle array or single object updates
         const incomingGames = Array.isArray(packet.data) ? packet.data : [packet.data];
@@ -137,6 +148,7 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   onSportChange(sport: string) {
     this.selectedSport = sport;
+    this.activeGames = [];
     this.fetchActiveGames();
     console.log('This is the sport being passed into SPORTCHANGE: ', sport);
     const sportTypeMap: { [key: string]: string } = {
@@ -156,5 +168,7 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.warn('websocket not open, reconnecting ... ');
       this.connectWebSocket();
     }
+
   }
+
 }

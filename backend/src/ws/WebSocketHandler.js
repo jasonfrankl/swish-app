@@ -55,18 +55,10 @@ async function fetchAndBroadcast(ws, sportType) {
 
 function broadcastLiveScore(liveScores, sportType) {
     console.log('This is the backend BROADCAST sportType that is being passed in: ', sportType);
-    const sportTypeMap = {
-        'college-basketball': 'college_basketball',
-        'college_basketball': 'college_basketball',  // Backend consistent naming
-        'womens_college_basketball': 'womens_college_basketball',
-        'college_football': 'college_football'
-    };
-    const dbSportType = sportTypeMap[sportType] || 'college_basketball';
-    console.log('This is what dbSportTYPE Should be: ', sportTypeMap[sportType]);
     clients.forEach((clientSportType, client) => {
         console.log('This is the client sport type: ', clientSportType);
-        console.log('This is the dbSportType: ', dbSportType);
-        if (client.readyState === 1 && clientSportType == dbSportType) {
+        console.log('This is the REGULAR SPORT TYPE IS WITHOUT NORMALIZATION ON THE BACKEND: ', sportType);
+        if (client.readyState === 1 && clientSportType == sportType) {
             console.log(`Broadcasting live scores for ${sportType}`);
             client.send(JSON.stringify({ label: 'chat', data: liveScores }));
         }
