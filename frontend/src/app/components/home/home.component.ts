@@ -22,7 +22,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient) { }
 
   ngOnInit() {
-    this.fetchActiveGames();
+    // this.fetchActiveGames();
     this.connectWebSocket();
   }
 

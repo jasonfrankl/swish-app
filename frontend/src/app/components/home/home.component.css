@@ -88,7 +88,7 @@ button {
 /* Make the card wider and adjust height */
 .card {
     width: 600px;
-    height: 130px;
+    height: 170px;
     background-color: #24233b;
     border-radius: 8px;
     box-shadow: 0px 10px 10px rgb(73, 70, 92);
@@ -146,19 +146,21 @@ h1 {
     margin-left: 15px;
 }
 
-/* Slider code */
+/* From Uiverse.io by arghyaBiswasDev */
+/* The switch - the box around the slider */
+/* From Uiverse.io by mrhyddenn */
 /* The switch - the box around the slider */
 .switch {
     font-size: 17px;
     position: relative;
     display: inline-block;
-    width: 3.5em;
-    height: 2em;
+    width: 60px;
+    height: 35px;
 }
 
 /* Hide default HTML checkbox */
 .switch input {
-    opacity: 0;
+    opacity: 1;
     width: 0;
     height: 0;
 }
@@ -170,35 +172,33 @@ h1 {
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    background-color: #fff;
-    border: 1px solid #adb5bd;
+    bottom: 0px;
+    background: #fff;
     transition: .4s;
     border-radius: 30px;
+    border: 1px solid #ccc;
 }
 
 .slider:before {
     position: absolute;
     content: "";
-    height: 1.4em;
-    width: 1.4em;
-    border-radius: 20px;
-    left: 0.27em;
-    bottom: 0.25em;
-    background-color: #adb5bd;
+    height: 1em;
+    width: 1em;
+    border-radius: 16px;
+    left: 1.2px;
+    top: 1px;
+    right: .5px;
+    bottom: 0;
+    background-color: white;
+    box-shadow: 0 2px 5px #999999;
     transition: .4s;
 }
 
 input:checked+.slider {
-    background-color: #007bff;
-    border: 1px solid #007bff;
-}
-
-input:focus+.slider {
-    box-shadow: 0 0 1px #007bff;
+    background-color: #5fdd54;
+    border: 1px solid transparent;
 }
 
 input:checked+.slider:before {
-    transform: translateX(1.4em);
-    background-color: #fff;
+    transform: translateX(1.7em);
 }
