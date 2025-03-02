@@ -28,7 +28,7 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 CREATE TABLE IF NOT EXISTS games (
     id INT AUTO_INCREMENT PRIMARY KEY,
-    sport_type ENUM('college_basketball', 'womens_college_basketball', 'college_football') NOT NULL,
+    sport_type ENUM('basketball-men', 'basketball-women', 'football') NOT NULL,
     home_team VARCHAR(100) NOT NULL,
     away_team VARCHAR(100) NOT NULL,
     game_date DATETIME NOT NULL,

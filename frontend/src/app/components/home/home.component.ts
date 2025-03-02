@@ -18,16 +18,17 @@ export class HomeComponent implements OnInit, OnDestroy {
   socket!: WebSocket;
   reconnectTimeout: any;
 
-  selectedSport = 'college-basketball';
+  // Set the selectedSport to a normalized API value
+  selectedSport: string = 'basketball-men';
+
   constructor(private http: HttpClient) { }
 
   ngOnInit() {
-    // this.fetchActiveGames();
+    this.fetchActiveGames();
     this.connectWebSocket();
   }
 
   ngOnDestroy() {
-    // Close WebSocket and clear timeout when component is destroyed
     if (this.socket) {
       this.socket.close();
     }
@@ -40,95 +41,71 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.loading = true;
     this.loadingApp = true;
     const apiUrl = this.getApiUrl(this.selectedSport);
-    this.http.get<any>(apiUrl)
-      .subscribe({
-        next: (response) => {
-          this.activeGames = response.activeGames || [];
-          this.loading = false;
-          this.loadingApp = false;
-        },
-        error: (error) => {
-          console.error('Error fetching active games:', error);
-          this.loading = false;
-          this.loadingApp = true;
-        }
-      });
+    this.http.get<any>(apiUrl).subscribe({
+      next: (response) => {
+        this.activeGames = response.activeGames || [];
+        this.loading = false;
+        this.loadingApp = false;
+      },
+      error: (error) => {
+        console.error('Error fetching active games:', error);
+        this.loading = false;
+        this.loadingApp = true;
+      }
+    });
   }
 
   getApiUrl(sport: string): string {
     const apiBaseUrl = 'http://localhost:3000';
-
-
+    // Now the sport is already in the normalized format.
     switch (sport) {
-      case "college-basketball":
-        return `${apiBaseUrl}/api/college-basketball/active-games`;
-      case "college_basketball":
-        return `${apiBaseUrl}/api/college-basketball/active-games`;
-      case "college-basketball-women":
-        return `${apiBaseUrl}/api/college-basketball-women/active-games`;
-      case "college-football":
-        return `${apiBaseUrl}/api/college-football/active-games`;
+      case "basketball-men":
+        return `${apiBaseUrl}/api/basketball-men/active-games`;
+      case "basketball-women":
+        return `${apiBaseUrl}/api/basketball-women/active-games`;
+      case "football":
+        return `${apiBaseUrl}/api/football/active-games`;
       default:
-        return `${apiBaseUrl}/api/college-basketball/active-games`;
+        return `${apiBaseUrl}/api/basketball-men/active-games`;
     }
   }
 
   // WebSocket Connection Logic
   connectWebSocket() {
     const scheme = window.location.protocol === 'https:' ? 'wss' : 'ws';
-    const backendHost = window.location.hostname === 'localhost'
-      ? 'localhost'
-      : 'host.docker.internal';
+    const backendHost = window.location.hostname === 'localhost' ? 'localhost' : 'host.docker.internal';
     const wsUrl = `${scheme}://${backendHost}:3000/ws`;
 
     this.socket = new WebSocket(wsUrl);
 
     this.socket.onopen = () => {
       console.log('WebSocket connected.');
-      // Normalize the sport type before sending
-      const sportTypeMap: { [key: string]: string } = {
-        'college-basketball': 'college_basketball',
-        'college-basketball-women': 'womens_college_basketball',
-        'college-football': 'college_football'
-      };
-      const dbSportType = sportTypeMap[this.selectedSport] || 'college_basketball';
-      console.log('Sending initial sport type to WebSocket:', dbSportType);
-
-      this.socket.send(JSON.stringify({ type: 'sportChange', sportType: dbSportType }));
+      // Send the selected sport as is (already normalized)
+      this.socket.send(JSON.stringify({ type: 'sportChange', sportType: this.selectedSport }));
     };
 
     this.socket.onmessage = (event) => {
       const packet = JSON.parse(event.data);
-      if (packet.label === 'init') {
-        this.activeGames = packet.data;
-      } else if (packet.label === 'chat') {
-        console.log('Live update IS ID is this updating:', packet.data);
-
-        const incomingGames = Array.isArray(packet.data) ? packet.data : [packet.data];
-        console.log('INCOMING GAMES: ', incomingGames);
-        incomingGames.forEach((newGame: any) => {
-          const existingGameIndex = this.activeGames.findIndex(
-            (g) => g.homeTeam === newGame.homeTeam && g.awayTeam === newGame.awayTeam
-          );
-          console.log(newGame);
-          const formattedGame = {
-            homeTeam: newGame.homeTeam || 'Unknown Team',
-            awayTeam: newGame.awayTeam || 'Unknown Team',
-            homeScore: (newGame.score?.home !== undefined) ? newGame.score.home : 0,
-            awayScore: (newGame.score?.away !== undefined) ? newGame.score.away : 0,
-            currentPeriod: newGame.currentPeriod || 'N/A',
-            gameClock: newGame.gameClock || '00:00'
-          };
-
-
-          if (existingGameIndex !== -1) {
-            // Update the existing game
-            this.activeGames[existingGameIndex] = { ...this.activeGames[existingGameIndex], ...formattedGame };
-          } else {
-            // Add the game if not already present
+      if (packet.label === 'chat') {
+        console.log('Live update:', packet.data);
+        // Only update if the packet sportType matches the selected sport.
+        if (packet.sportType === this.selectedSport) {
+          this.activeGames = [];
+          const incomingGames = Array.isArray(packet.data) ? packet.data : [packet.data];
+          incomingGames.forEach((newGame: any) => {
+            const formattedGame = {
+              homeTeam: newGame.homeTeam || 'Unknown Team',
+              awayTeam: newGame.awayTeam || 'Unknown Team',
+              homeScore: newGame.score?.home ?? 0,
+              awayScore: newGame.score?.away ?? 0,
+              currentPeriod: newGame.currentPeriod || 'N/A',
+              gameClock: newGame.gameClock || '00:00'
+            };
             this.activeGames.push(formattedGame);
-          }
-        });
+          });
+        } else {
+          console.warn(`Ignoring update for ${packet.sportType} since current sport is ${this.selectedSport}`);
+        }
       }
     };
 
@@ -143,30 +120,20 @@ export class HomeComponent implements OnInit, OnDestroy {
     };
   }
 
-
   onSportChange(sport: string) {
+    // sport comes in as one of the normalized values: "basketball-men", "basketball-women", "football"
     this.selectedSport = sport;
     this.activeGames = [];
     this.fetchActiveGames();
-    console.log('This is the sport being passed into SPORTCHANGE: ', sport);
-    const sportTypeMap: { [key: string]: string } = {
-      'college-basketball': 'college_basketball',
-      'college-basketball-women': 'womens_college_basketball',
-      'college-football': 'college_football'
-    };
 
-    console.log('This is what the sport is being mapped to: ', sportTypeMap[sport]);
-    const dbSportType = sportTypeMap[sport] || 'college_basketball';
-
+    console.log('Changing sport to:', sport);
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-      const message = JSON.stringify({ type: 'sportChange', sportType: dbSportType });
-      console.log(`Sending sportCHange to websocket: ${message}`)
+      const message = JSON.stringify({ type: 'sportChange', sportType: sport });
+      console.log(`Sending sportChange to WebSocket: ${message}`);
       this.socket.send(message);
     } else {
-      console.warn('websocket not open, reconnecting ... ');
+      console.warn('WebSocket not open, reconnecting...');
       this.connectWebSocket();
     }
-
   }
-
 }

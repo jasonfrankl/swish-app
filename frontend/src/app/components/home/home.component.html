@@ -2,7 +2,6 @@
     <app-loading></app-loading>
 </div>
 <div *ngIf="!loading">
-
     <div class="header-container">
         <div class="header">
             <p>Box Score Notification App</p>
@@ -13,27 +12,25 @@
     </div>
     <div class="radio-inputs">
         <label class="radio">
-            <input type="radio" name="radio" value="'college-basketball'" (change)="onSportChange('college-basketball')"
-                [checked]="selectedSport === 'college-basketball'">
+            <input type="radio" name="radio" (change)="onSportChange('basketball-men')"
+                [checked]="selectedSport === 'basketball-men'">
             <span class="name">NCAAM</span>
         </label>
         <label class="radio">
-            <input type="radio" name="radio" value="'college-basketball-women'"
-                (change)="onSportChange('college-basketball-women')"
-                [checked]="selectedSport === 'college-basketball-women'">
+            <input type="radio" name="radio" (change)="onSportChange('basketball-women')"
+                [checked]="selectedSport === 'basketball-women'">
             <span class="name">NCAAW</span>
         </label>
-
         <label class="radio">
-            <input type="radio" name="radio" value="'college-football'" (change)="onSportChange('college-football')"
-                [checked]="selectedSport === 'college-football'">
+            <input type="radio" name="radio" (change)="onSportChange('football')"
+                [checked]="selectedSport === 'football'">
             <span class="name">CFB</span>
         </label>
     </div>
     <div *ngIf="loading">
         <app-loading></app-loading>
     </div>
-    <h1> Currently Playing </h1>
+    <h1>Currently Playing</h1>
     <div class="game-cards-container" *ngIf="activeGames.length > 0; else noGames">
         <div *ngFor="let game of activeGames" class="card">
             <div class="top">
@@ -46,16 +43,8 @@
                 <p>Score:</p>
                 <p>{{ game.homeScore }} - {{ game.awayScore }}</p>
             </div>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider"></span>
-            </label>
         </div>
-
     </div>
-
-
-
     <ng-template #noGames>
         <p>No Games currently in Progress</p>
     </ng-template>

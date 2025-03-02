@@ -3,13 +3,11 @@ const moment = require('moment');
 
 class GameDAO {
     static async addActiveGames(activeGames, sportType) {
-
-        const sportTypeMap = {
-            'college-basketball': 'college_basketball',
-            'womens-college-basketball': 'womens_college_basketball',
-            'college-football': 'college_football'
-        };
-        const dbSportType = sportTypeMap[sportType] || 'college_basketball';
+        // If you expect sportType to be normalized already,
+        // you can simply do a quick check or fallback to a default.
+        const validSports = ['basketball-men', 'basketball-women', 'football'];
+        const dbSportType = validSports.includes(sportType) ? sportType : 'basketball-men';
+        console.log("HERE IS WHAT THE DATABASE IS USING: ", dbSportType);
 
         try {
             // Iterate over each game and check if it exists
@@ -23,7 +21,7 @@ class GameDAO {
 
                 if (!existingGame) {
                     await db.query(
-                        'INSERT INTO games (sport_type, home_team, away_team, game_date, game_period, game_clock, home_score, away_score) VALUES (?, ?, ?, ?, ?, ?, ?, ? )',
+                        'INSERT INTO games (sport_type, home_team, away_team, game_date, game_period, game_clock, home_score, away_score) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
                         [
                             dbSportType,
                             homeTeam,

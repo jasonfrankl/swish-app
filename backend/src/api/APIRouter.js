@@ -22,13 +22,14 @@ router.get('/api/:sport/active-games', async (req, res) => {
 
 function getApiUrl(sportType) {
     const apiPaths = {
-        'college_basketball': 'basketball-men/d1',
-        'womens_college_basketball': 'basketball-women/d1',
-        'college_football': 'football/fbs'
+        'basketball-men': 'basketball-men/d1',
+        'basketball-women': 'basketball-women/d1',
+        'football': 'football/fbs'
     };
     const baseUrl = 'https://ncaa-api.henrygd.me/scoreboard';
-    return `${baseUrl}/${apiPaths[sportType] || apiPaths["college_basketball"]}`;
+    return `${baseUrl}/${apiPaths[sportType] || apiPaths['basketball-men']}`;
 }
+
 
 module.exports = router;
 

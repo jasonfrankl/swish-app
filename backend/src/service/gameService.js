@@ -32,6 +32,7 @@ async function handleGameFetch(url, sportType) {
             });
 
         // Call DAO method to add games to DB
+        console.log("HERE IS THE SPORTY TYEP BEING PASSED INTO DATABASE: ", sportType);
         await GameDAO.addActiveGames(activeGames, sportType);
 
         return activeGames;
