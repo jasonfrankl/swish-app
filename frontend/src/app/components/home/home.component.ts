@@ -24,8 +24,9 @@ export class HomeComponent implements OnInit, OnDestroy {
   constructor(private http: HttpClient) { }
 
   ngOnInit() {
-    this.fetchActiveGames();
+    // this.fetchActiveGames();
     this.connectWebSocket();
+    console.log("TEST");
   }
 
   ngOnDestroy() {
@@ -90,24 +91,28 @@ export class HomeComponent implements OnInit, OnDestroy {
         console.log('Live update:', packet.data);
         // Only update if the packet sportType matches the selected sport.
         if (packet.sportType === this.selectedSport) {
-          this.activeGames = [];
-          const incomingGames = Array.isArray(packet.data) ? packet.data : [packet.data];
-          incomingGames.forEach((newGame: any) => {
-            const formattedGame = {
-              homeTeam: newGame.homeTeam || 'Unknown Team',
-              awayTeam: newGame.awayTeam || 'Unknown Team',
-              homeScore: newGame.score?.home ?? 0,
-              awayScore: newGame.score?.away ?? 0,
-              currentPeriod: newGame.currentPeriod || 'N/A',
-              gameClock: newGame.gameClock || '00:00'
-            };
-            this.activeGames.push(formattedGame);
-          });
+          // Instead of updating immediately, wait 500ms before updating.
+          setTimeout(() => {
+            this.activeGames = []; // Clear current games
+            const incomingGames = Array.isArray(packet.data) ? packet.data : [packet.data];
+            incomingGames.forEach((newGame: any) => {
+              const formattedGame = {
+                homeTeam: newGame.homeTeam || 'Unknown Team',
+                awayTeam: newGame.awayTeam || 'Unknown Team',
+                homeScore: newGame.score?.home ?? 0,
+                awayScore: newGame.score?.away ?? 0,
+                currentPeriod: newGame.currentPeriod || 'N/A',
+                gameClock: newGame.gameClock || '00:00'
+              };
+              this.activeGames.push(formattedGame);
+            });
+          }, 300);
         } else {
           console.warn(`Ignoring update for ${packet.sportType} since current sport is ${this.selectedSport}`);
         }
       }
     };
+
 
     this.socket.onclose = () => {
       console.log('WebSocket closed. Reconnecting...');
