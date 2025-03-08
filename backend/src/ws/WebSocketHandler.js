@@ -22,8 +22,9 @@ function handleWebSocketConnection(ws, sportType = 'basketball-men') {
                 clearInterval(intervals.get(ws));
             }
             // Immediately fetch and then restart periodic fetching for the new sport.
-            fetchAndBroadcast(ws, newSportType);
             startFetchingScores(ws, newSportType);
+            fetchAndBroadcast(ws, newSportType);
+
         }
     });
 

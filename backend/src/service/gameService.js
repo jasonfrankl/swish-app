@@ -15,7 +15,7 @@ async function handleGameFetch(url, sportType) {
         const activeGames = games
             .filter(gameObj => {
                 const game = gameObj.game;
-                return game.currentPeriod !== "FINAL" && game.currentPeriod !== '';
+                return game.gameState === "live";
             })
             .map(gameObj => {
                 const game = gameObj.game;
