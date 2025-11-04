@@ -21,12 +21,14 @@ app.use(express.static(__dirname + '/dist/forage-for-cool-bees-frontend/browser'
 // Use API router for all API calls
 app.use(apiRouter);
 
-app.get('/*', (req, res) => {
-    res.sendFile(path.join(__dirname, '/dist/forage-for-cool-bees-frontend/browser/index.html'));
-});
-// Health check (optional)
+// Health check (optional - must come before catch-all route)
 app.get('/api/health', (req, res) => {
     res.status(200).send('OK');
+});
+
+// Catch-all route for SPA (must be last)
+app.get(/^(?!\/api\/).*/, (req, res) => {
+    res.sendFile(path.join(__dirname, '/dist/forage-for-cool-bees-frontend/browser/index.html'));
 });
 
 const PORT = process.env.PORT || 4200;

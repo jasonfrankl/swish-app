@@ -19,11 +19,19 @@ FROM node:20
 WORKDIR /frontend  
 
 COPY --from=build /frontend/dist/forage-for-cool-bees-frontend/browser /frontend/dist/forage-for-cool-bees-frontend/browser
-COPY backend /backend 
 
+# Install backend dependencies first in /backend
+WORKDIR /backend
+COPY backend/package*.json ./
+RUN npm install --production
+
+# Copy backend source code (node_modules already exists, so this won't overwrite it)
+COPY backend/src /backend/src
+
+# Install frontend server dependencies
+WORKDIR /frontend
 COPY frontend/server.js .  
-RUN npm install express
-RUN npm install http-proxy-middleware
+RUN npm install express http-proxy-middleware
 
 EXPOSE 4200
 CMD ["node", "server.js"]
