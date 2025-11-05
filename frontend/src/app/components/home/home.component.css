@@ -113,6 +113,7 @@ button {
     white-space: nowrap;
     padding-bottom: 10px;
     border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+    gap: 10px;
 }
 
 /* Center the content below the divider */
@@ -201,4 +202,112 @@ input:checked+.slider {
 
 input:checked+.slider:before {
     transform: translateX(1.7em);
+}
+
+/* Search Bar Styles */
+.search-container {
+    margin: 20px 15px;
+    display: flex;
+    justify-content: center;
+}
+
+.search-input {
+    width: 100%;
+    max-width: 600px;
+    padding: 12px 20px;
+    font-size: 16px;
+    border: 2px solid #3653f8;
+    border-radius: 8px;
+    outline: none;
+    transition: border-color 0.3s;
+}
+
+.search-input:focus {
+    border-color: #2a3fd4;
+    box-shadow: 0 0 0 3px rgba(54, 83, 248, 0.1);
+}
+
+/* Favorites Section Styles */
+.favorites-section {
+    margin: 20px 15px;
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.favorites-section h2 {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.5em;
+}
+
+.favorites-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.favorite-card {
+    width: 100%;
+    max-width: 500px;
+    background-color: #24233b;
+    border-radius: 8px;
+    padding: 15px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s;
+}
+
+.favorite-card:hover {
+    transform: translateY(-2px);
+}
+
+.favorite-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.favorite-top h4 {
+    margin: 0;
+    font-size: 1.2em;
+    color: white;
+    flex: 1;
+}
+
+.favorite-content {
+    display: flex;
+    flex-direction: column;
+    text-align: center;
+    color: white;
+    padding-top: 10px;
+}
+
+.favorite-content p {
+    margin: 5px 0;
+    font-size: 1em;
+}
+
+/* Star Button Styles */
+.star-button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 5px;
+    transition: transform 0.2s;
+    flex-shrink: 0;
+    color: #ffd700;
+    line-height: 1;
+}
+
+.star-button:hover {
+    transform: scale(1.2);
+}
+
+.star-button.favorite {
+    color: #ffd700;
 }

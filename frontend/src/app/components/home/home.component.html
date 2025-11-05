@@ -10,6 +10,34 @@
             <button [routerLink]="['/login']">Login</button>
         </div>
     </div>
+
+    <!-- Favorites Section -->
+    <div class="favorites-section" *ngIf="favoriteGames.length > 0">
+        <h2>⭐ Favorites</h2>
+        <div class="favorites-container">
+            <div *ngFor="let game of favoriteGames" class="favorite-card">
+                <div class="favorite-top">
+                    <h4>{{ game.homeTeam }}</h4>
+                    <span>vs.</span>
+                    <h4>{{ game.awayTeam }}</h4>
+                    <button class="star-button favorite" (click)="removeFavorite(game)" title="Remove from favorites">
+                        ⭐
+                    </button>
+                </div>
+                <div class="favorite-content">
+                    <p>Current Period: <strong>{{ game.currentPeriod }} - {{ game.gameClock }}</strong></p>
+                    <p>Score: <strong>{{ game.homeScore }} - {{ game.awayScore }}</strong></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="search-container">
+        <input type="text" class="search-input" placeholder="Search teams by name..." [(ngModel)]="searchQuery"
+            (input)="onSearchChange()" />
+    </div>
+
     <div class="radio-inputs">
         <label class="radio">
             <input type="radio" name="radio" (change)="onSportChange('basketball-men')"
@@ -31,12 +59,16 @@
         <app-loading></app-loading>
     </div>
     <h1>Currently Playing</h1>
-    <div class="game-cards-container" *ngIf="activeGames.length > 0; else noGames">
-        <div *ngFor="let game of activeGames" class="card">
+    <div class="game-cards-container" *ngIf="filteredGames.length > 0; else noGames">
+        <div *ngFor="let game of filteredGames" class="card">
             <div class="top">
                 <h3>{{ game.homeTeam }}</h3>
                 <span>vs.</span>
                 <h3>{{ game.awayTeam }}</h3>
+                <button class="star-button" [class.favorite]="isFavorite(game)" (click)="toggleFavorite(game)"
+                    [title]="isFavorite(game) ? 'Remove from favorites' : 'Add to favorites'">
+                    {{ isFavorite(game) ? '⭐' : '☆' }}
+                </button>
             </div>
             <div class="content">
                 <p>Current Period: <strong>{{ game.currentPeriod }} - {{game.gameClock}}</strong></p>
@@ -46,6 +78,6 @@
         </div>
     </div>
     <ng-template #noGames>
-        <p>No Games currently in Progress</p>
+        <p>{{ searchQuery ? 'No games found matching your search.' : 'No Games currently in Progress' }}</p>
     </ng-template>
 </div>

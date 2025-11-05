@@ -2,29 +2,37 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { LoadingComponent } from '../loading/loading.component';
 
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [RouterModule, NgIf, NgFor, LoadingComponent],
+  imports: [RouterModule, NgIf, NgFor, LoadingComponent, FormsModule],
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.css']
 })
 export class HomeComponent implements OnInit, OnDestroy {
   activeGames: any[] = [];
+  filteredGames: any[] = [];
+  favoriteGames: any[] = [];
   loading: boolean = false;
   loadingApp: boolean = false;
   socket!: WebSocket;
   reconnectTimeout: any;
+  searchQuery: string = '';
 
   // Set the selectedSport to a normalized API value
   selectedSport: string = 'basketball-men';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {
+    // Initialize filteredGames to match activeGames initially
+    this.filteredGames = [...this.activeGames];
+  }
 
   ngOnInit() {
     // this.fetchActiveGames();
+    this.loadFavorites();
     this.connectWebSocket();
     console.log("TEST");
   }
@@ -44,7 +52,11 @@ export class HomeComponent implements OnInit, OnDestroy {
     const apiUrl = this.getApiUrl(this.selectedSport);
     this.http.get<any>(apiUrl).subscribe({
       next: (response) => {
-        this.activeGames = response.activeGames || [];
+        this.activeGames = (response.activeGames || []).map((game: any) => ({
+          ...game,
+          id: this.generateGameId(game.homeTeam || 'Unknown Team', game.awayTeam || 'Unknown Team')
+        }));
+        this.applyFilters();
         this.loading = false;
         this.loadingApp = false;
       },
@@ -102,10 +114,22 @@ export class HomeComponent implements OnInit, OnDestroy {
                 homeScore: newGame.score?.home ?? 0,
                 awayScore: newGame.score?.away ?? 0,
                 currentPeriod: newGame.currentPeriod || 'N/A',
-                gameClock: newGame.gameClock || '00:00'
+                gameClock: newGame.gameClock || '00:00',
+                id: this.generateGameId(newGame.homeTeam || 'Unknown Team', newGame.awayTeam || 'Unknown Team')
               };
               this.activeGames.push(formattedGame);
+
+              // Update favorite game if it exists
+              const gameId = formattedGame.id;
+              const favoriteIndex = this.favoriteGames.findIndex(fav =>
+                this.generateGameId(fav.homeTeam, fav.awayTeam) === gameId
+              );
+              if (favoriteIndex > -1) {
+                this.favoriteGames[favoriteIndex] = { ...formattedGame };
+                this.saveFavorites();
+              }
             });
+            this.applyFilters();
           }, 300);
         } else {
           console.warn(`Ignoring update for ${packet.sportType} since current sport is ${this.selectedSport}`);
@@ -140,5 +164,73 @@ export class HomeComponent implements OnInit, OnDestroy {
       console.warn('WebSocket not open, reconnecting...');
       this.connectWebSocket();
     }
+  }
+
+  // Search functionality
+  onSearchChange() {
+    this.applyFilters();
+  }
+
+  applyFilters() {
+    this.filteredGames = this.activeGames.filter(game => {
+      if (this.searchQuery.trim() === '') {
+        return true;
+      }
+      const query = this.searchQuery.toLowerCase();
+      return game.homeTeam.toLowerCase().includes(query) ||
+        game.awayTeam.toLowerCase().includes(query);
+    });
+  }
+
+  // Favorites functionality
+  generateGameId(homeTeam: string, awayTeam: string): string {
+    return `${homeTeam}_${awayTeam}`;
+  }
+
+  isFavorite(game: any): boolean {
+    const gameId = this.generateGameId(game.homeTeam, game.awayTeam);
+    return this.favoriteGames.some(fav =>
+      this.generateGameId(fav.homeTeam, fav.awayTeam) === gameId
+    );
+  }
+
+  toggleFavorite(game: any) {
+    const gameId = this.generateGameId(game.homeTeam, game.awayTeam);
+    const favoriteIndex = this.favoriteGames.findIndex(fav =>
+      this.generateGameId(fav.homeTeam, fav.awayTeam) === gameId
+    );
+
+    if (favoriteIndex > -1) {
+      // Remove from favorites
+      this.favoriteGames.splice(favoriteIndex, 1);
+    } else {
+      // Add to favorites
+      this.favoriteGames.push({ ...game });
+    }
+    this.saveFavorites();
+  }
+
+  loadFavorites() {
+    const saved = localStorage.getItem('favoriteGames');
+    if (saved) {
+      try {
+        this.favoriteGames = JSON.parse(saved);
+      } catch (e) {
+        console.error('Error loading favorites:', e);
+        this.favoriteGames = [];
+      }
+    }
+  }
+
+  saveFavorites() {
+    localStorage.setItem('favoriteGames', JSON.stringify(this.favoriteGames));
+  }
+
+  removeFavorite(game: any) {
+    const gameId = this.generateGameId(game.homeTeam, game.awayTeam);
+    this.favoriteGames = this.favoriteGames.filter(fav =>
+      this.generateGameId(fav.homeTeam, fav.awayTeam) !== gameId
+    );
+    this.saveFavorites();
   }
 }
