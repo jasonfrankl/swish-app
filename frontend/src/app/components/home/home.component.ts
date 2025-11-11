@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { LoadingComponent } from '../loading/loading.component';
+import { NotificationService } from '../../services/notification.service';
 
 @Component({
   selector: 'app-home',
@@ -25,7 +26,7 @@ export class HomeComponent implements OnInit, OnDestroy {
   // Set the selectedSport to a normalized API value
   selectedSport: string = 'basketball-men';
 
-  constructor(private http: HttpClient) {
+  constructor(private http: HttpClient, private notificationService: NotificationService) {
     // Initialize filteredGames to match activeGames initially
     this.filteredGames = [...this.activeGames];
   }
@@ -103,7 +104,7 @@ export class HomeComponent implements OnInit, OnDestroy {
         console.log('Live update:', packet.data);
         // Only update if the packet sportType matches the selected sport.
         if (packet.sportType === this.selectedSport) {
-          // Instead of updating immediately, wait 500ms before updating.
+          // Instead of updating immediately, wait 300ms before updating.
           setTimeout(() => {
             this.activeGames = []; // Clear current games
             const incomingGames = Array.isArray(packet.data) ? packet.data : [packet.data];
@@ -119,14 +120,32 @@ export class HomeComponent implements OnInit, OnDestroy {
               };
               this.activeGames.push(formattedGame);
 
-              // Update favorite game if it exists
+              // Check if this is a favorite game and notify of score changes
               const gameId = formattedGame.id;
               const favoriteIndex = this.favoriteGames.findIndex(fav =>
                 this.generateGameId(fav.homeTeam, fav.awayTeam) === gameId
               );
               if (favoriteIndex > -1) {
+                // Update favorite game
                 this.favoriteGames[favoriteIndex] = { ...formattedGame };
                 this.saveFavorites();
+
+                // Check for score change and notify
+                if (this.notificationService.hasScoreChanged(
+                  gameId,
+                  formattedGame.homeScore,
+                  formattedGame.awayScore
+                )) {
+                  this.notificationService.notifyScoreChange({
+                    gameId: gameId,
+                    homeTeam: formattedGame.homeTeam,
+                    awayTeam: formattedGame.awayTeam,
+                    homeScore: formattedGame.homeScore,
+                    awayScore: formattedGame.awayScore,
+                    currentPeriod: formattedGame.currentPeriod,
+                    gameClock: formattedGame.gameClock
+                  });
+                }
               }
             });
             this.applyFilters();
@@ -194,7 +213,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     );
   }
 
-  toggleFavorite(game: any) {
+  async toggleFavorite(game: any) {
     const gameId = this.generateGameId(game.homeTeam, game.awayTeam);
     const favoriteIndex = this.favoriteGames.findIndex(fav =>
       this.generateGameId(fav.homeTeam, fav.awayTeam) === gameId
@@ -203,9 +222,15 @@ export class HomeComponent implements OnInit, OnDestroy {
     if (favoriteIndex > -1) {
       // Remove from favorites
       this.favoriteGames.splice(favoriteIndex, 1);
+      // Clear cache for this game
+      this.notificationService.clearGameCache(gameId);
     } else {
-      // Add to favorites
+      // Add to favorites - request notification permission
       this.favoriteGames.push({ ...game });
+      // Cache the current score to avoid notifying on initial load
+      this.notificationService.cacheGameScore(gameId, game.homeScore, game.awayScore);
+      // Request notification permission once
+      await this.notificationService.requestNotificationPermission();
     }
     this.saveFavorites();
   }
@@ -231,6 +256,8 @@ export class HomeComponent implements OnInit, OnDestroy {
     this.favoriteGames = this.favoriteGames.filter(fav =>
       this.generateGameId(fav.homeTeam, fav.awayTeam) !== gameId
     );
+    // Clear cache for this game
+    this.notificationService.clearGameCache(gameId);
     this.saveFavorites();
   }
 }

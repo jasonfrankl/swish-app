@@ -1,37 +1,28 @@
 # Stage 1: Build Angular App
-FROM node:20 AS build
+FROM node:20-alpine AS build
 
 WORKDIR /frontend
 
 COPY frontend/package*.json ./
-RUN npm install
+RUN npm ci
 
-# Copy frontend and force rebuild by adding a dummy environment variable
 ARG CACHE_BUSTs=1
 ENV BUILD_TIME=${CACHE_BUSTs}
 COPY frontend/ .
 RUN npm run build -- --configuration production --output-hashing=all
-RUN ls -la /frontend/dist/forage-for-cool-bees-frontend/browser
 
-# Stage 2: Serve with Node (Production Environment)
-FROM node:20
+# Stage 2: Lightweight runtime with Node.js server
+FROM node:20-alpine
 
-WORKDIR /frontend  
-
-COPY --from=build /frontend/dist/forage-for-cool-bees-frontend/browser /frontend/dist/forage-for-cool-bees-frontend/browser
-
-# Install backend dependencies first in /backend
-WORKDIR /backend
-COPY backend/package*.json ./
-RUN npm install --production
-
-# Copy backend source code (node_modules already exists, so this won't overwrite it)
-COPY backend/src /backend/src
-
-# Install frontend server dependencies
 WORKDIR /frontend
-COPY frontend/server.js .  
-RUN npm install express http-proxy-middleware
+
+# Copy built Angular app
+COPY --from=build /frontend/dist/forage-for-cool-bees-frontend/browser ./dist
+
+# Install minimal frontend server dependencies
+COPY frontend/server.js .
+COPY frontend/package*.json ./
+RUN npm ci --only=production
 
 EXPOSE 4200
 CMD ["node", "server.js"]

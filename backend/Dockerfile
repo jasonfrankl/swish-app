@@ -1,21 +1,26 @@
-# Use the official Node.js LTS image as the base image
-FROM node:20
+# Stage 1: Build dependencies
+FROM node:20-alpine AS builder
 
-# Set the working directory in the image
 WORKDIR /app
 
-# Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install
-# Copy the application code to the working directory
+RUN npm ci --only=production
+
+# Stage 2: Runtime - lightweight alpine image
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy only production dependencies from builder
+COPY --from=builder /app/node_modules ./node_modules
+
+# Copy application code
 COPY . .
 
 EXPOSE 3000
 
-ENV WEBSOCKET_ENABLED=false
-
+ENV WEBSOCKET_ENABLED=true
 
 # Command to run the app
-ENTRYPOINT [ "npm", "start"]
+CMD [ "node", "./src/server.js"]
